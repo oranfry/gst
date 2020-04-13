@@ -5,7 +5,7 @@ class gst extends \Blend
 {
     public function __construct()
     {
-        $this->label = 'GST: Net';
+        $this->label = 'Net';
         $this->linetypes = ['gst',];
         $this->past = false;
         $this->cum = true;

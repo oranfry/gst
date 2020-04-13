@@ -5,7 +5,7 @@ class purchasegst extends \Blend
 {
     public function __construct()
     {
-        $this->label = 'GST: Purchases';
+        $this->label = 'Purchases';
         $this->linetypes = ['purchasegst',];
         $this->past = false;
         $this->cum = true;

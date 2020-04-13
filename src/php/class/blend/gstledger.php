@@ -5,7 +5,7 @@ class gstledger extends \Blend
 {
     function __construct()
     {
-        $this->label = 'GST: Ledger';
+        $this->label = 'Transactions';
         $this->past = true;
         $this->cum = true;
         $this->linetypes = ['gsttransaction', 'gstsettlementgroup', 'error', 'correction',];
