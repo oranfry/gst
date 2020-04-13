@@ -90,13 +90,13 @@ class correction extends \Linetype
         ];
         $this->inlinelinks = [
             (object) [
-                'linetype' => 'transaction',
                 'tablelink' => 'errorerror',
+                'linetype' => 'gsttransaction',
                 'required' => true,
             ],
             (object) [
                 'tablelink' => 'errorcorrection',
-                'linetype' => 'transaction',
+                'linetype' => 'gsttransaction',
                 'required' => true,
             ]
         ];

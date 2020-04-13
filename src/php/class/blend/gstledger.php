@@ -8,7 +8,7 @@ class gstledger extends \Blend
         $this->label = 'GST: Ledger';
         $this->past = true;
         $this->cum = true;
-        $this->linetypes = ['transaction', 'gstsettlementgroup', 'error', 'correction',];
+        $this->linetypes = ['gsttransaction', 'gstsettlementgroup', 'error', 'correction',];
         $this->hide_types = ['gstsettlementgroup' => 'gstsettlementgroup'];
         $this->showass = ['list', 'calendar', 'graph', 'summaries'];
         $this->groupby = 'date';
