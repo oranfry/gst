@@ -5,29 +5,42 @@ class gst extends \Blend
 {
     public function __construct()
     {
-        $this->label = 'Net';
-        $this->linetypes = ['gst',];
+        $this->label = 'All';
+        $this->linetypes = ['transaction',];
         $this->past = false;
         $this->cum = true;
         $this->groupby = 'date';
-        $this->fields = [
+
+        $this->filters = [
             (object) [
-                'name' => 'icon',
-                'type' => 'icon',
+                'field' => 'gst',
+                'cmp' => '!=',
+                'value' => 0,
             ],
+        ];
+
+        $this->fields = [
             (object) [
                 'name' => 'date',
                 'type' => 'date',
                 'main' => true,
             ],
             (object) [
-                'name' => 'gross',
+                'name' => 'sort',
+                'type' => 'text',
+            ],
+            (object) [
+                'name' => 'account',
+                'type' => 'text',
+            ],
+            (object) [
+                'name' => 'net',
                 'type' => 'number',
                 'dp' => 2,
                 'summary' => 'sum',
             ],
             (object) [
-                'name' => 'amount',
+                'name' => 'gst',
                 'type' => 'number',
                 'dp' => 2,
                 'summary' => 'sum',

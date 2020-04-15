@@ -5,11 +5,8 @@ class gst extends \Package
 {
     public $label = 'GST';
     public $blends = [
-        'gstledger',
+        'gst',
         'purchasegst',
         'salegst',
-        'gst',
-        'errors',
-        'corrections',
     ];
 }

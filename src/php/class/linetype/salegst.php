@@ -7,6 +7,6 @@ class salegst extends gst
     {
         parent::__construct();
 
-        $this->clause = "t.description = 'sale' or ifnull(t.description, '') != 'purchase' and t.amount > 0";
+        $this->clauses = ["t.description = 'sale' or ifnull(t.description, '') != 'purchase' and t.amount > 0"];
     }
 }

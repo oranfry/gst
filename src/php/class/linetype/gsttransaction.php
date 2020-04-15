@@ -8,8 +8,10 @@ class gsttransaction extends \Linetype
         $this->table = 'transaction';
         $this->label = 'Transaction';
         $this->icon = 'dollar';
-        $this->clause = 'gstpeer_transaction.id is null and gstird_transaction.id is null and errorerror.id is null and correctionerror.id is null';
         $this->showass = ['list', 'calendar', 'graph'];
+        $this->clauses = [
+            'gstpeer_transaction.id is null and gstird_transaction.id is null'
+        ];
         $this->fields = [
             (object) [
                 'name' => 'icon',
@@ -36,10 +38,10 @@ class gsttransaction extends \Linetype
                 'fuse' => 't.description',
             ],
             (object) [
-                'name' => 'invert',
+                'name' => 'sort',
                 'type' => 'text',
                 'constrained' => true,
-                'fuse' => "if (gstpeer_gst.amount > 0 and gstpeer_gst.description = 'purchase' or gstpeer_gst.amount < 0 and gstpeer_gst.description = 'sale', 'yes', null)",
+                'fuse' => "coalesce(if(gstpeer_gst.description in ('sale', 'purchase'), gstpeer_gst.description, null), if(gstpeer_gst.amount > 0, 'sale', 'purchase'))",
             ],
             (object) [
                 'name' => 'claimdate',
@@ -91,11 +93,11 @@ class gsttransaction extends \Linetype
             'gstpeer_gst.date' => ':date',
             'gstpeer_gst.account' => "'gst'",
             'gstpeer_gst.amount' => ':gst',
-            'gstpeer_gst.description' => "if (:invert = 'yes', if(:gst > 0, 'purchase', 'sale'), null)",
+            'gstpeer_gst.description' => ":sort",
             'gstird_gst.date' => ':claimdate',
             'gstird_gst.account' => "'gst'",
             'gstird_gst.amount' => '0 - :gst',
-            'gstird_gst.description' => "if (:invert = 'yes', if(:gst > 0, 'purchase', 'sale'), null)",
+            'gstird_gst.description' => ":sort",
         ];
 
         $this->inlinelinks = [
@@ -118,20 +120,6 @@ class gsttransaction extends \Linetype
                 'tablelink' => 'gstird',
                 'norecurse' => true,
                 'reverse' => true,
-            ],
-            (object) [
-                'linetype' => 'error',
-                'tablelink' => 'errorerror',
-                'norecurse' => true,
-                'reverse' => true,
-                'alias' => 'errorerror',
-            ],
-            (object) [
-                'linetype' => 'error',
-                'tablelink' => 'errorcorrection',
-                'norecurse' => true,
-                'reverse' => true,
-                'alias' => 'correctionerror',
             ],
         ];
     }
@@ -164,7 +152,7 @@ class gsttransaction extends \Linetype
         $suggested_values = [];
 
         $suggested_values['account'] = get_values('transaction', 'account');
-        $suggested_values['invert'] = ['', 'yes'];
+        $suggested_values['sort'] = ['purchase', 'sale'];
 
         return $suggested_values;
     }
