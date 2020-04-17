@@ -1,5 +1,5 @@
 <?php
-namespace blend;
+namespace gst\blend;
 
 class purchasegst extends gst
 {

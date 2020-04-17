@@ -1,7 +1,7 @@
 <?php
-namespace linetype;
+namespace gst\linetype;
 
-class gstfreetransaction extends \Linetype
+class plaintransaction extends \Linetype
 {
     public function __construct()
     {

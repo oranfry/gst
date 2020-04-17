@@ -1,5 +1,5 @@
 <?php
-namespace linetype;
+namespace gst\linetype;
 
 class gsttransaction extends \Linetype
 {
@@ -41,11 +41,11 @@ class gsttransaction extends \Linetype
                 'name' => 'sort',
                 'type' => 'text',
                 'constrained' => true,
-                'fuse' => "coalesce(if(gstpeer_gst.description in ('sale', 'purchase'), gstpeer_gst.description, null), if(gstpeer_gst.amount > 0, 'sale', 'purchase'))",
+                'fuse' => "coalesce(if(gstpeer_gst.description in ('sale', 'purchase'), gstpeer_gst.description, null), if(gstpeer_gst.amount > 0, 'sale', if(gstpeer_gst.amount < 0, 'purchase', '')))",
             ],
             (object) [
                 'name' => 'claimdate',
-                'type' => 'text',
+                'type' => 'date',
                 'fuse' => 'gstird_gst.date',
             ],
             (object) [
@@ -102,21 +102,21 @@ class gsttransaction extends \Linetype
 
         $this->inlinelinks = [
             (object) [
-                'linetype' => 'gstfreetransaction',
+                'linetype' => 'plaintransaction',
                 'tablelink' => 'gstpeer',
             ],
             (object) [
-                'linetype' => 'gstfreetransaction',
+                'linetype' => 'plaintransaction',
                 'tablelink' => 'gstird',
             ],
             (object) [
-                'linetype' => 'gstfreetransaction',
+                'linetype' => 'plaintransaction',
                 'tablelink' => 'gstpeer',
                 'norecurse' => true,
                 'reverse' => true,
             ],
             (object) [
-                'linetype' => 'gstfreetransaction',
+                'linetype' => 'plaintransaction',
                 'tablelink' => 'gstird',
                 'norecurse' => true,
                 'reverse' => true,

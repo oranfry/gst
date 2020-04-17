@@ -1,13 +1,15 @@
 <?php
-namespace linetype;
+namespace gst\linetype;
 
-class gstsettlement extends \Linetype
+class gstsettlementgroup extends \Linetype
 {
     public function __construct()
     {
         $this->table = 'transaction';
         $this->label = 'GST Settlment';
         $this->icon = 'moneytake';
+        $this->id_field = 'date';
+        $this->showass = ['list', 'calendar', 'graph'];
         $this->fields = [
             (object) [
                 'name' => 'icon',
@@ -21,9 +23,14 @@ class gstsettlement extends \Linetype
                 'fuse' => 't.date',
             ],
             (object) [
+                'name' => 'txdate',
+                'type' => 'date',
+                'fuse' => 'gstird_transaction.date',
+            ],
+            (object) [
                 'name' => 'account',
                 'type' => 'text',
-                'fuse' => 't.account',
+                'fuse' => "'gst settlement'",
             ],
             (object) [
                 'name' => 'amount',
@@ -33,13 +40,21 @@ class gstsettlement extends \Linetype
                 'fuse' => 't.amount',
             ],
         ];
+        $this->unfuse_fields = [
+            't.date' => ':date',
+        ];
         $this->inlinelinks = [
             (object) [
-                'linetype' => 'gstfreetransaction',
+                'linetype' => 'plaintransaction',
                 'tablelink' => 'gstird',
                 'reverse' => true,
                 'required' => true,
             ],
         ];
+    }
+
+    public function has($line, $assoc)
+    {
+        return $assoc == 'gstird_transaction';
     }
 }
