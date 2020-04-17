@@ -34,13 +34,13 @@ class gst extends \Blend
                 'type' => 'text',
             ],
             (object) [
-                'name' => 'net',
+                'name' => 'gst',
                 'type' => 'number',
                 'dp' => 2,
                 'summary' => 'sum',
             ],
             (object) [
-                'name' => 'gst',
+                'name' => 'amount',
                 'type' => 'number',
                 'dp' => 2,
                 'summary' => 'sum',
