@@ -58,7 +58,13 @@ class gsttransaction extends \Linetype
                 'name' => 'broken',
                 'type' => 'class',
                 'derived' => true,
-                'fuse' => "if (t.account = 'error' or t.account = 'correction' or t.account = 'gst' or gstpeer_gst.amount + gstird_gst.amount != 0 or (gstpeer_gst.amount != 0 and abs(round(t.amount * 0.15, 2) - gstpeer_gst.amount) > 0.01), 'broken', '')",
+                'clauses' => [
+                    "t.account = 'error'",
+                    "t.account = 'correction'",
+                    "t.account = 'gst'",
+                    "gstpeer_gst.amount + gstird_gst.amount != 0",
+                    "gstpeer_gst.amount != 0 and abs(round(t.amount * 0.15, 2) - gstpeer_gst.amount) > 0.01",
+                ],
             ],
             (object) [
                 'name' => 'net',
@@ -84,6 +90,8 @@ class gsttransaction extends \Linetype
                 'fuse' => 'coalesce(t.amount, 0) + coalesce(gstpeer_gst.amount, 0)',
             ],
         ];
+
+        $this->build_class_field_fuse('broken');
 
         $this->unfuse_fields = [
             't.date' => ':date',
