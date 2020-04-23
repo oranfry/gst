@@ -55,18 +55,6 @@ class gsttransaction extends \Linetype
                 'fuse' => "if (gstpeer_gst.amount != 0, 'moneytake', '')",
             ],
             (object) [
-                'name' => 'broken',
-                'type' => 'class',
-                'derived' => true,
-                'clauses' => [
-                    "t.account = 'error'",
-                    "t.account = 'correction'",
-                    "t.account = 'gst'",
-                    "gstpeer_gst.amount + gstird_gst.amount != 0",
-                    "gstpeer_gst.amount != 0 and abs(round(t.amount * 0.15, 2) - gstpeer_gst.amount) > 0.01",
-                ],
-            ],
-            (object) [
                 'name' => 'net',
                 'type' => 'number',
                 'dp' => 2,
@@ -88,6 +76,29 @@ class gsttransaction extends \Linetype
                 'show_derived' => true,
                 'summary' => 'sum',
                 'fuse' => 'coalesce(t.amount, 0) + coalesce(gstpeer_gst.amount, 0)',
+            ],
+            (object) [
+                'name' => 'file',
+                'type' => 'file',
+                'icon' => 'docpdf',
+                'path' => function($line) {
+                    $hash = md5('transaction:' . $line->id);
+                    $intermediate = substr($hash, 0, 3);
+                    return "transactions/{$intermediate}/{$line->id}.pdf";
+                },
+                'supress_header' => true,
+            ],
+            (object) [
+                'name' => 'broken',
+                'type' => 'class',
+                'derived' => true,
+                'clauses' => [
+                    "t.account = 'error'",
+                    "t.account = 'correction'",
+                    "t.account = 'gst'",
+                    "gstpeer_gst.amount + gstird_gst.amount != 0",
+                    "gstpeer_gst.amount != 0 and abs(round(t.amount * 0.15, 2) - gstpeer_gst.amount) > 0.01",
+                ],
             ],
         ];
 
