@@ -10,7 +10,7 @@ class gsttransaction extends \Linetype
         $this->icon = 'dollar';
         $this->showass = ['list', 'calendar', 'graph'];
         $this->clauses = [
-            'gstpeer_transaction.id is null and gstird_transaction.id is null'
+            '{t}_gstpeer_transaction.id is null and {t}_gstird_transaction.id is null'
         ];
         $this->fields = [
             (object) [
@@ -24,49 +24,49 @@ class gsttransaction extends \Linetype
                 'type' => 'date',
                 'id' => true,
                 'groupable' => true,
-                'fuse' => 't.date',
+                'fuse' => '{t}.date',
             ],
             (object) [
                 'name' => 'account',
                 'type' => 'text',
                 'suggest' => 'true',
-                'fuse' => 't.account',
+                'fuse' => '{t}.account',
             ],
             (object) [
                 'name' => 'description',
                 'type' => 'text',
-                'fuse' => 't.description',
+                'fuse' => '{t}.description',
             ],
             (object) [
                 'name' => 'sort',
                 'type' => 'text',
                 'constrained' => true,
-                'fuse' => "coalesce(if(gstpeer_gst.description in ('sale', 'purchase'), gstpeer_gst.description, null), if(gstpeer_gst.amount > 0, 'sale', if(gstpeer_gst.amount < 0, 'purchase', '')))",
+                'fuse' => "coalesce(if({t}_gstpeer_gst.description in ('sale', 'purchase'), {t}_gstpeer_gst.description, null), if({t}_gstpeer_gst.amount > 0, 'sale', if({t}_gstpeer_gst.amount < 0, 'purchase', '')))",
             ],
             (object) [
                 'name' => 'claimdate',
                 'type' => 'date',
-                'fuse' => 'gstird_gst.date',
+                'fuse' => '{t}_gstird_gst.date',
             ],
             (object) [
                 'name' => 'hasgst',
                 'type' => 'icon',
                 'derived' => true,
-                'fuse' => "if (gstpeer_gst.amount != 0, 'moneytake', '')",
+                'fuse' => "if ({t}_gstpeer_gst.amount != 0, 'moneytake', '')",
             ],
             (object) [
                 'name' => 'net',
                 'type' => 'number',
                 'dp' => 2,
                 'summary' => 'sum',
-                'fuse' => 't.amount',
+                'fuse' => '{t}.amount',
             ],
             (object) [
                 'name' => 'gst',
                 'type' => 'number',
                 'dp' => 2,
                 'summary' => 'sum',
-                'fuse' => 'gstpeer_gst.amount',
+                'fuse' => '{t}_gstpeer_gst.amount',
             ],
             (object) [
                 'name' => 'amount',
@@ -75,7 +75,7 @@ class gsttransaction extends \Linetype
                 'derived' => true,
                 'show_derived' => true,
                 'summary' => 'sum',
-                'fuse' => 'coalesce(t.amount, 0) + coalesce(gstpeer_gst.amount, 0)',
+                'fuse' => 'coalesce({t}.amount, 0) + coalesce({t}_gstpeer_gst.amount, 0)',
             ],
             (object) [
                 'name' => 'file',
@@ -93,11 +93,11 @@ class gsttransaction extends \Linetype
                 'type' => 'class',
                 'derived' => true,
                 'clauses' => [
-                    "t.account = 'error'",
-                    "t.account = 'correction'",
-                    "t.account = 'gst'",
-                    "gstpeer_gst.amount + gstird_gst.amount != 0",
-                    "gstpeer_gst.amount != 0 and abs(round(t.amount * 0.15, 2) - gstpeer_gst.amount) > 0.01",
+                    "{t}.account = 'error'",
+                    "{t}.account = 'correction'",
+                    "{t}.account = 'gst'",
+                    "{t}_gstpeer_gst.amount + {t}_gstird_gst.amount != 0",
+                    "{t}_gstpeer_gst.amount != 0 and abs(round({t}.amount * 0.15, 2) - {t}_gstpeer_gst.amount) > 0.01",
                 ],
             ],
         ];
@@ -105,18 +105,10 @@ class gsttransaction extends \Linetype
         $this->build_class_field_fuse('broken');
 
         $this->unfuse_fields = [
-            't.date' => ':date',
-            't.account' => ':account',
-            't.description' => ':description',
-            't.amount' => ':net',
-            'gstpeer_gst.date' => ':date',
-            'gstpeer_gst.account' => "'gst'",
-            'gstpeer_gst.amount' => ':gst',
-            'gstpeer_gst.description' => ":sort",
-            'gstird_gst.date' => ':claimdate',
-            'gstird_gst.account' => "'gst'",
-            'gstird_gst.amount' => '0 - :gst',
-            'gstird_gst.description' => ":sort",
+            '{t}.date' => ':{t}_date',
+            '{t}.account' => ':{t}_account',
+            '{t}.description' => ':{t}_description',
+            '{t}.amount' => ':{t}_net',
         ];
 
         $this->inlinelinks = [
@@ -156,6 +148,8 @@ class gsttransaction extends \Linetype
             $abs = preg_replace('/^-/', '', $line->amount);
             $line->net = $sign . bcmul('1', bcadd(bcdiv(bcmul($abs, '100', 3), '115', 3), '0.005', 3), 2);
             $line->gst = bcsub($line->amount, $line->net, 2);
+        } else {
+            $line->amount = bcadd(@$line->net ?? '0.00', @$line->gst ?? '0.00', 2);
         }
     }
 
@@ -184,14 +178,36 @@ class gsttransaction extends \Linetype
             $errors[] = 'no date';
         }
 
+        if (!@$line->claimdate && $line->gst != 0) {
+            $errors[] = 'no claim date';
+        }
+
         if ($line->account == null) {
-            $errors[] = 'no item';
+            $errors[] = 'no account';
         }
 
         if ($line->net == null && $line->amount == null) {
-            $errors[] = 'no price';
+            $errors[] = 'no monetary entries';
         }
 
         return $errors;
+    }
+
+    public function unpack($line)
+    {
+        if ($line->gst != 0) {
+            $line->gstpeer_gst = (object) [
+                'date' => $line->date,
+                'account' => 'gst',
+                'amount' => $line->gst,
+                'description' => $line->sort,
+            ];
+            $line->gstird_gst = (object) [
+                'date' => $line->claimdate,
+                'account' => 'gst',
+                'amount' => 0 - $line->gst,
+                'description' => $line->sort,
+            ];
+        }
     }
 }

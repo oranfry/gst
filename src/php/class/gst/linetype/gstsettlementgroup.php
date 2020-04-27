@@ -20,12 +20,12 @@ class gstsettlementgroup extends \Linetype
             (object) [
                 'name' => 'date',
                 'type' => 'date',
-                'fuse' => 't.date',
+                'fuse' => '{t}.date',
             ],
             (object) [
                 'name' => 'txdate',
                 'type' => 'date',
-                'fuse' => 'gstird_transaction.date',
+                'fuse' => '{t}_gstird_transaction.date',
             ],
             (object) [
                 'name' => 'account',
@@ -37,11 +37,11 @@ class gstsettlementgroup extends \Linetype
                 'type' => 'number',
                 'dp' => 2,
                 'summary' => 'sum',
-                'fuse' => 't.amount',
+                'fuse' => '{t}.amount',
             ],
         ];
         $this->unfuse_fields = [
-            't.date' => ':date',
+            '{t}.date' => ':{t}_date',
         ];
         $this->inlinelinks = [
             (object) [
@@ -49,12 +49,8 @@ class gstsettlementgroup extends \Linetype
                 'tablelink' => 'gstird',
                 'reverse' => true,
                 'required' => true,
+                'norecurse' => true,
             ],
         ];
-    }
-
-    public function has($line, $assoc)
-    {
-        return $assoc == 'gstird_transaction';
     }
 }
