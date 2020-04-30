@@ -81,7 +81,7 @@ class gsttransaction extends \Linetype
                 'name' => 'file',
                 'type' => 'file',
                 'icon' => 'docpdf',
-                'prefix' => 'transaction',
+                'path' => 'transaction',
             ],
             (object) [
                 'name' => 'broken',
