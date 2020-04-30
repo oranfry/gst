@@ -81,12 +81,7 @@ class gsttransaction extends \Linetype
                 'name' => 'file',
                 'type' => 'file',
                 'icon' => 'docpdf',
-                'path' => function($line) {
-                    $hash = md5('transaction:' . $line->id);
-                    $intermediate = substr($hash, 0, 3);
-                    return "transactions/{$intermediate}/{$line->id}.pdf";
-                },
-                'supress_header' => true,
+                'prefix' => 'transaction',
             ],
             (object) [
                 'name' => 'broken',
