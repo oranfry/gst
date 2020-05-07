@@ -34,6 +34,11 @@ class gst extends \Blend
                 'type' => 'text',
             ],
             (object) [
+                'name' => 'created',
+                'type' => 'text',
+                'default' => '',
+            ],
+            (object) [
                 'name' => 'gst',
                 'type' => 'number',
                 'dp' => 2,

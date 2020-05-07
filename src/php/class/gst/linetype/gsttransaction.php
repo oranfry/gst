@@ -38,6 +38,11 @@ class gsttransaction extends \Linetype
                 'fuse' => '{t}.description',
             ],
             (object) [
+                'name' => 'created',
+                'type' => 'text',
+                'fuse' => '{t}.created',
+            ],
+            (object) [
                 'name' => 'sort',
                 'type' => 'text',
                 'constrained' => true,
