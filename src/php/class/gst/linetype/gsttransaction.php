@@ -195,18 +195,18 @@ class gsttransaction extends \Linetype
 
     public function unpack($line)
     {
-        if ($line->gst != 0) {
+        if (@$line->gst != 0) {
             $line->gstpeer_gst = (object) [
                 'date' => $line->date,
                 'account' => 'gst',
                 'amount' => $line->gst,
-                'description' => $line->sort,
+                'description' => @$line->sort,
             ];
             $line->gstird_gst = (object) [
                 'date' => $line->claimdate,
                 'account' => 'gst',
                 'amount' => 0 - $line->gst,
-                'description' => $line->sort,
+                'description' => @$line->sort,
             ];
         }
     }
