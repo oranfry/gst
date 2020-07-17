@@ -201,12 +201,14 @@ class gsttransaction extends \Linetype
                 'account' => 'gst',
                 'amount' => $line->gst,
                 'description' => @$line->sort,
+                'user' => @$line->user,
             ];
             $line->gstird_gst = (object) [
                 'date' => $line->claimdate,
                 'account' => 'gst',
                 'amount' => 0 - $line->gst,
                 'description' => @$line->sort,
+                'user' => @$line->user,
             ];
         }
     }
