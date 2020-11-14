@@ -160,11 +160,11 @@ class gsttransaction extends \Linetype
         }
     }
 
-    public function get_suggested_values()
+    public function get_suggested_values($token)
     {
         $suggested_values = [];
 
-        $suggested_values['account'] = get_values('transaction', 'account');
+        $suggested_values['account'] = get_values($token, 'transaction', 'account');
         $suggested_values['sort'] = ['purchase', 'sale'];
 
         return $suggested_values;
