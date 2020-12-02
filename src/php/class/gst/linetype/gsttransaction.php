@@ -105,10 +105,22 @@ class gsttransaction extends \Linetype
         $this->build_class_field_fuse('broken');
 
         $this->unfuse_fields = [
-            '{t}.date' => ':{t}_date',
-            '{t}.account' => ':{t}_account',
-            '{t}.description' => ':{t}_description',
-            '{t}.amount' => ':{t}_net',
+            '{t}.date' => (object) [
+                'expression' => ':{t}_date',
+                'type' => 'date',
+            ],
+            '{t}.account' => (object) [
+                'expression' => ':{t}_account',
+                'type' => 'varchar(40)',
+            ],
+            '{t}.description' => (object) [
+                'expression' => ':{t}_description',
+                'type' => 'varchar(255)',
+            ],
+            '{t}.amount' => (object) [
+                'expression' => ':{t}_net',
+                'type' => 'decimal(18, 2)',
+            ],
         ];
 
         $this->inlinelinks = [

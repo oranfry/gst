@@ -41,7 +41,10 @@ class gstsettlementgroup extends \Linetype
             ],
         ];
         $this->unfuse_fields = [
-            '{t}.date' => ':{t}_date',
+            '{t}.date' => (object) [
+                'expression' => ':{t}_date',
+                'type' => 'date',
+            ],
         ];
         $this->inlinelinks = [
             (object) [
