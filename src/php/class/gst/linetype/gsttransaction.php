@@ -92,17 +92,13 @@ class gsttransaction extends \Linetype
                 'name' => 'broken',
                 'type' => 'class',
                 'derived' => true,
-                'clauses' => [
-                    "{t}.account = 'error'",
-                    "{t}.account = 'correction'",
-                    "{t}.account = 'gst'",
-                    "{t}_gstpeer_gst.amount + {t}_gstird_gst.amount != 0",
-                    "{t}_gstpeer_gst.amount != 0 and abs(round({t}.amount * 0.15, 2) - {t}_gstpeer_gst.amount) > 0.01",
-                ],
+                'fuse' => "case
+                        when {t}.account in ('error', 'correction', 'gst') then 'Reserved Account'
+                        when {t}_gstpeer_gst.amount + {t}_gstird_gst.amount != 0 then 'Unbalanced GST'
+                        when {t}_gstpeer_gst.amount != 0 and abs(round({t}.amount * 0.15, 2) - {t}_gstpeer_gst.amount) > 0.01 then 'Wrong GST'
+                    end",
             ],
         ];
-
-        $this->build_class_field_fuse('broken');
 
         $this->unfuse_fields = [
             '{t}.date' => (object) [
