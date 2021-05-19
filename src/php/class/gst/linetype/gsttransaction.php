@@ -38,15 +38,15 @@ class gsttransaction extends \Linetype
                 'fuse' => '{t}.description',
             ],
             (object) [
-                'name' => 'created',
-                'type' => 'text',
-                'fuse' => '{t}.created',
-            ],
-            (object) [
                 'name' => 'sort',
                 'type' => 'text',
                 'constrained' => true,
                 'fuse' => "coalesce(if({t}_gstpeer_gst.description in ('sale', 'purchase'), {t}_gstpeer_gst.description, null), if({t}_gstpeer_gst.amount > 0, 'sale', if({t}_gstpeer_gst.amount < 0, 'purchase', '')))",
+            ],
+            (object) [
+                'name' => 'invert',
+                'type' => 'text',
+                'fuse' => "if({t}_gstpeer_gst.amount > 0 and {t}_gstpeer_gst.description = 'purchase' or {t}_gstpeer_gst.amount < 0 and {t}_gstpeer_gst.description = 'sale', 'yes', '')",
             ],
             (object) [
                 'name' => 'claimdate',
@@ -204,18 +204,28 @@ class gsttransaction extends \Linetype
     public function unpack($line)
     {
         if (@$line->gst != 0) {
+            $description = '';
+
+            if (@$line->invert == 'yes') {
+                if (@$line->gst < 0) {
+                    $description = 'sale';
+                } else {
+                    $description = 'purchase';
+                }
+            }
+
             $line->gstpeer_gst = (object) [
                 'date' => $line->date,
                 'account' => 'gst',
                 'amount' => $line->gst,
-                'description' => @$line->sort,
+                'description' => $description,
                 'user' => @$line->user,
             ];
             $line->gstird_gst = (object) [
                 'date' => $line->claimdate,
                 'account' => 'gst',
                 'amount' => 0 - $line->gst,
-                'description' => @$line->sort,
+                'description' => $description,
                 'user' => @$line->user,
             ];
         }
