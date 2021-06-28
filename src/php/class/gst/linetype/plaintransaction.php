@@ -12,53 +12,35 @@ class plaintransaction extends \Linetype
         $this->summaries = null;
         $this->showass = ['list', 'calendar', 'graph'];
         $this->fields = [
-            (object) [
-                'name' => 'icon',
-                'type' => 'icon',
-                'fuse' => "'dollar'",
-                'derived' => true,
-            ],
-            (object) [
-                'name' => 'date',
-                'type' => 'date',
-                'groupable' => true,
-                'fuse' => '{t}.date',
-            ],
-            (object) [
-                'name' => 'account',
-                'type' => 'text',
-                'fuse' => '{t}.account',
-            ],
-            (object) [
-                'name' => 'description',
-                'type' => 'text',
-                'fuse' => '{t}.description',
-            ],
-            (object) [
-                'name' => 'amount',
-                'type' => 'number',
-                'dp' => 2,
-                'summary' => 'sum',
-                'fuse' => '{t}.amount',
-            ],
+            'icon' => function ($records) : string {
+                return 'dollar';
+            },
+            'date' => function ($records) : string {
+                return $records['/']->date;
+            },
+            'account' => function ($records) : ?string {
+                return @$records['/']->account;
+            },
+            'description' => function ($records) : ?string {
+                return @$records['/']->description;
+            },
+            'amount' => function ($records) : ?string {
+                return $records['/']->amount;
+            },
         ];
         $this->unfuse_fields = [
-            '{t}.date' => (object) [
-                'expression' => ':{t}_date',
-                'type' => 'date',
-            ],
-            '{t}.amount' => (object) [
-                'expression' => ':{t}_amount',
-                'type' => 'decimal(18, 2)',
-            ],
-            '{t}.account' => (object) [
-                'expression' => ':{t}_account',
-                'type' => 'varchar(40)',
-            ],
-            '{t}.description' => (object) [
-                'expression' => ':{t}_description',
-                'type' => 'varchar(255)',
-            ],
+            'date' => function($line, $oldline) : string {
+                return $line->date;
+            },
+            'amount' => function($line, $oldline) : string {
+                return $line->amount;
+            },
+            'account' => function($line, $oldline) : string {
+                return $line->account;
+            },
+            'description' => function($line, $oldline) : ?string {
+                return $line->description;
+            },
         ];
     }
 

@@ -13,110 +13,77 @@ class gsttransaction extends \Linetype
             '{t}_gstpeer_transaction.id is null and {t}_gstird_transaction.id is null'
         ];
         $this->fields = [
-            (object) [
-                'name' => 'icon',
-                'type' => 'icon',
-                'fuse' => "'dollar'",
-                'derived' => true,
-            ],
-            (object) [
-                'name' => 'date',
-                'type' => 'date',
-                'id' => true,
-                'groupable' => true,
-                'fuse' => '{t}.date',
-            ],
-            (object) [
-                'name' => 'account',
-                'type' => 'text',
-                'suggest' => 'true',
-                'fuse' => '{t}.account',
-            ],
-            (object) [
-                'name' => 'description',
-                'type' => 'text',
-                'fuse' => '{t}.description',
-            ],
-            (object) [
-                'name' => 'sort',
-                'type' => 'text',
-                'constrained' => true,
-                'fuse' => "coalesce(if({t}_gstpeer_gst.description in ('sale', 'purchase'), {t}_gstpeer_gst.description, null), if({t}_gstpeer_gst.amount > 0, 'sale', if({t}_gstpeer_gst.amount < 0, 'purchase', '')))",
-            ],
-            (object) [
-                'name' => 'invert',
-                'type' => 'text',
-                'fuse' => "if({t}_gstpeer_gst.amount > 0 and {t}_gstpeer_gst.description = 'purchase' or {t}_gstpeer_gst.amount < 0 and {t}_gstpeer_gst.description = 'sale', 'yes', '')",
-            ],
-            (object) [
-                'name' => 'claimdate',
-                'type' => 'date',
-                'fuse' => '{t}_gstird_gst.date',
-            ],
-            (object) [
-                'name' => 'hasgst',
-                'type' => 'icon',
-                'derived' => true,
-                'fuse' => "if ({t}_gstpeer_gst.amount != 0, 'moneytake', '')",
-            ],
-            (object) [
-                'name' => 'net',
-                'type' => 'number',
-                'dp' => 2,
-                'summary' => 'sum',
-                'fuse' => '{t}.amount',
-            ],
-            (object) [
-                'name' => 'gst',
-                'type' => 'number',
-                'dp' => 2,
-                'summary' => 'sum',
-                'fuse' => '{t}_gstpeer_gst.amount',
-            ],
-            (object) [
-                'name' => 'amount',
-                'type' => 'number',
-                'dp' => 2,
-                'derived' => true,
-                'show_derived' => true,
-                'summary' => 'sum',
-                'fuse' => 'coalesce({t}.amount, 0) + coalesce({t}_gstpeer_gst.amount, 0)',
-            ],
-            (object) [
-                'name' => 'file',
-                'type' => 'file',
-                'icon' => 'docpdf',
-                'path' => 'transaction',
-            ],
-            (object) [
-                'name' => 'broken',
-                'type' => 'class',
-                'derived' => true,
-                'fuse' => "case
-                        when {t}.account in ('error', 'correction', 'gst') then 'Reserved Account'
-                        when {t}_gstpeer_gst.amount + {t}_gstird_gst.amount != 0 then 'Unbalanced GST'
-                        when {t}_gstpeer_gst.amount != 0 and abs(round({t}.amount * 0.15, 2) - {t}_gstpeer_gst.amount) > 0.01 then 'Wrong GST'
-                    end",
-            ],
+            'icon' => function($records) : string {
+                return 'dollar';
+            },
+            'date' => function($records) : string {
+                return $records['/']->date;
+            },
+            'account' => function($records) : string {
+                return $records['/']->account;
+            },
+            'description' => function($records) : ?string {
+                return @$records['/']->description;
+            },
+            'invert' => function($records) : ?string {
+                if (!isset($records['/gstpeer_gst'])) {
+                    return null;
+                }
+
+                return [true => 'yes', false => 'no'][
+                    $records['/gstpeer_gst']->amount > 0 and $records['/gstpeer_gst']->description == 'purchase'
+                    ||
+                    $records['/gstpeer_gst']->amount < 0 and $records['/gstpeer_gst']->description == 'sale'
+                ];
+            },
+            'claimdate' => function($records) : ?string {
+                return @$records['/gstird_gst']->date;
+            },
+            'hasgst' => function($records) : ?string {
+                return @$records['/gstpeer_gst']->amount != 0 ? 'moneytake' : null;
+            },
+            'net' => function($records) : string {
+                return $records['/']->amount;
+            },
+            'gst' => function($records) : ?string {
+                return @$records['/gstpeer_gst']->amount;
+            },
+            'amount' => function($records) : string {
+                return (@$records['/']->amount ?? 0) + (@$records['/gstpeer_gst']->amount ?? 0);
+            },
+            // 'file' => function($records) : string {
+            //     'path' => 'transaction',
+            // },
+            'broken' => function($records) : ?string {
+                if (in_array($records['/']->account, ['error', 'correction', 'gst'])) {
+                    return 'Reserved Account';
+                }
+
+                if (isset($records['/gstpeer_gst']) && $records['/gstpeer_gst']->amount + $records['/gstird_gst']->amount != 0) {
+                    return 'Unbalanced GST';
+                }
+
+                if (isset($records['/gstpeer_gst']) && $records['/gstpeer_gst']->amount != 0 && abs(round($records['/']->amount * 0.15, 2) - $records['/gstpeer_gst']->amount) > 0.01) {
+                    return 'Wrong GST';
+                }
+
+                return null;
+            },
         ];
 
         $this->unfuse_fields = [
-            '{t}.date' => (object) [
-                'expression' => ':{t}_date',
-                'type' => 'date',
-            ],
-            '{t}.account' => (object) [
-                'expression' => ':{t}_account',
-                'type' => 'varchar(40)',
-            ],
-            '{t}.description' => (object) [
-                'expression' => ':{t}_description',
-                'type' => 'varchar(255)',
-            ],
-            '{t}.amount' => (object) [
-                'expression' => ':{t}_net',
-                'type' => 'decimal(18, 2)',
-            ],
+            'date' => function($line) : string {
+                return $line->date;
+            },
+            'account' => function($line) : string {
+                return $line->account;
+            },
+            'description' => function($line) : ?string {
+                return @$line->description;
+            },
+            'amount' => function($line) : string {
+                return @$line->net ?? '0';
+            },
         ];
 
         $this->inlinelinks = [
@@ -194,7 +161,7 @@ class gsttransaction extends \Linetype
             $errors[] = 'no account';
         }
 
-        if ($line->net == null && $line->amount == null) {
+        if (!@$line->net && @!$line->amount) {
             $errors[] = 'no monetary entries';
         }
 

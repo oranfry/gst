@@ -11,40 +11,30 @@ class gstsettlementgroup extends \Linetype
         $this->id_field = 'date';
         $this->showass = ['list', 'calendar', 'graph'];
         $this->fields = [
-            (object) [
-                'name' => 'icon',
-                'type' => 'icon',
-                'fuse' => "'moneytake'",
-                'derived' => true,
-            ],
-            (object) [
-                'name' => 'date',
-                'type' => 'date',
-                'fuse' => '{t}.date',
-            ],
-            (object) [
-                'name' => 'txdate',
-                'type' => 'date',
-                'fuse' => '{t}_gstird_transaction.date',
-            ],
-            (object) [
-                'name' => 'account',
-                'type' => 'text',
-                'fuse' => "'gst settlement'",
-            ],
-            (object) [
-                'name' => 'amount',
-                'type' => 'number',
-                'dp' => 2,
-                'summary' => 'sum',
-                'fuse' => '{t}.amount',
-            ],
+            'icon' => function ($records) {
+                return "moneytake";
+            },
+            'date' => function ($records) {
+                return $records['/']->date;
+            },
+            'txdate' => function ($records) {
+                if (!array_key_exists('/gstird_transaction', $records)) {
+                    var_dump($records);
+                    die();
+                }
+                return $records['/gstird_transaction']->date;
+            },
+            'account' => function ($records) {
+                return "gst settlement";
+            },
+            'amount' => function ($records) {
+                return $records['/gstird_transaction']->amount;
+            },
         ];
         $this->unfuse_fields = [
-            '{t}.date' => (object) [
-                'expression' => ':{t}_date',
-                'type' => 'date',
-            ],
+            'date' => function($line, $oldline) {
+                return $line->date;
+            },
         ];
         $this->inlinelinks = [
             (object) [
@@ -52,7 +42,7 @@ class gstsettlementgroup extends \Linetype
                 'tablelink' => 'gstird',
                 'reverse' => true,
                 'required' => true,
-                'norecurse' => true,
+                // 'norecurse' => true,
             ],
         ];
     }
