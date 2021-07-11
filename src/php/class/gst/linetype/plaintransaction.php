@@ -57,11 +57,11 @@ class plaintransaction extends \Linetype
     {
         $errors = [];
 
-        if ($line->date == null) {
+        if (@$line->date == null) {
             $errors[] = 'no date';
         }
 
-        if ($line->amount == null) {
+        if (@$line->amount == null) {
             $errors[] = 'no amount';
         }
 

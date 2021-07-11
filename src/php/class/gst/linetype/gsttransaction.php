@@ -20,7 +20,13 @@ class gsttransaction extends \Linetype
                 return $records['/']->date;
             },
             'account' => function($records) : string {
-                return $records['/']->account;
+                // if (!@$records['/']->account) {
+                //     echo "gsttransaction: no account (?!)\n";
+                //     var_dump($records);
+                //     die();
+                // }
+
+                return @$records['/']->account ?: 'unknown';
             },
             'description' => function($records) : ?string {
                 return @$records['/']->description;
@@ -43,12 +49,18 @@ class gsttransaction extends \Linetype
                 return @$records['/gstpeer_gst']->amount != 0 ? 'moneytake' : null;
             },
             'net' => function($records) : string {
-                return $records['/']->amount;
+                return @$records['/']->amount ?: '0.00';
             },
             'gst' => function($records) : ?string {
                 return @$records['/gstpeer_gst']->amount;
             },
             'amount' => function($records) : string {
+                if (!property_exists($records['/'], 'amount')) {
+                    echo "gsttransaction: no amount (?!)\n";
+                    var_dump($records);
+                    die();
+                }
+
                 return (@$records['/']->amount ?? 0) + (@$records['/gstpeer_gst']->amount ?? 0);
             },
             // 'file' => function($records) : string {
