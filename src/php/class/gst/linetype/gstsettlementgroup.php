@@ -40,7 +40,7 @@ class gstsettlementgroup extends \Linetype
         ];
         $this->inlinelinks = [
             (object) [
-                'linetype' => 'x',
+                'linetype' => 'origtransaction',
                 'tablelink' => 'gstird',
                 'reverse' => true,
                 'required' => true,
