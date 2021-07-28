@@ -120,6 +120,8 @@ class gsttransaction extends \Linetype
                 'reverse' => true,
             ],
         ];
+
+        $this->derived_fields = ['amount'];
     }
 
     public function complete($line)
