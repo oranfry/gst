@@ -1,22 +1,19 @@
 <?php
+
 namespace gst\linetype;
 
-class origtransaction extends \Linetype
+class origtransaction extends \jars\Linetype
 {
     public function __construct()
     {
-        $this->label = 'Orig Transaction';
         $this->table = 'transaction';
-        $this->showass = ['list', 'calendar', 'graph'];
+
         $this->fields = [
-            'date' => function ($records) : string {
-                return $records['/']->date;
-            },
+            'date' => fn ($records) : string => $records['/']->date,
         ];
+
         $this->unfuse_fields = [
-            'date' => function($line, $oldline) : string {
-                return $line->date;
-            },
+            'date' => fn ($line, $oldline) : string => $line->date,
         ];
     }
 
