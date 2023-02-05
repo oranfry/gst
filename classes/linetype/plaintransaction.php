@@ -9,7 +9,6 @@ class plaintransaction extends \jars\Linetype
         $this->table = 'transaction';
 
         $this->fields = [
-            'icon' => fn ($records) : string => 'dollar',
             'date' => fn ($records) : string => $records['/']->date,
             'account' => fn ($records) : ?string => @$records['/']->account,
             'description' => fn ($records) : ?string => @$records['/']->description,

@@ -9,7 +9,6 @@ class gstsettlementgroup extends \jars\Linetype
         $this->table = 'transaction';
 
         $this->fields = [
-            'icon' => fn ($records) => "moneytake",
             'date' => fn ($records) => $records['/']->date,
             'account' => fn ($records) => "gst settlement",
             'amount' => fn ($records) => $records['/']->amount,
@@ -28,7 +27,7 @@ class gstsettlementgroup extends \jars\Linetype
                 'linetype' => 'origtransaction',
                 'property' => 'gstird_transaction',
                 'tablelink' => 'gstird',
-                'reverse' => 'true',
+                'reverse' => true,
             ],
         ];
     }

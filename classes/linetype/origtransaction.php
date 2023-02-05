@@ -8,13 +8,7 @@ class origtransaction extends \jars\Linetype
     {
         $this->table = 'transaction';
 
-        $this->fields = [
-            'date' => fn ($records) : string => $records['/']->date,
-        ];
-
-        $this->unfuse_fields = [
-            'date' => fn ($line, $oldline) : string => $line->date,
-        ];
+        $this->simple_string('date');
     }
 
     public function validate($line)
