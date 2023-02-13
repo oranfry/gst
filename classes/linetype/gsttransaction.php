@@ -22,7 +22,6 @@ class gsttransaction extends \jars\Linetype
             'gst' => fn ($records) : ?float => @$records['/gstpeer_gst']->amount ? (float) $records['/gstpeer_gst']->amount : null,
             'amount' => fn ($records) : float => (float)((@$records['/']->amount ?? 0) + (@$records['/gstpeer_gst']->amount ?? 0)),
             'is_peergst' => fn ($records) : bool => (bool) @$records['/gstpeer_transaction']->id,
-            // 'file' => fn ($records) : string => ...,
             'broken' => function($records) : ?string {
                 if (in_array($records['/']->account, ['error', 'correction', 'gst'])) {
                     return 'Reserved Account';
