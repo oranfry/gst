@@ -6,7 +6,7 @@ class gsthelper
 {
     public static function financial_year_of($date)
     {
-        return date('Y', strtotime(date_shift($date, '+9 month')));
+        return date('Y', strtotime(date('Y-m-d'), strtotime('+9 month', strtotime($date))));
     }
 
     public static function gst_period_start($date)
@@ -21,7 +21,7 @@ class gsthelper
     {
         $start = static::gst_period_start($date);
 
-        return date_shift($start, '+2 month -1 day');
+        return date('Y-m-d', strtotime('+2 month -1 day', strtotime($start)));
     }
 
     public static function gst_period_id($date)

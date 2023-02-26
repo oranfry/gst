@@ -71,7 +71,7 @@ class gsttransaction extends \jars\Linetype
         if (!@$line->claimdate) {
             $m = sprintf('%02d', (floor(substr($line->date, 5, 2) / 2) * 2 + 11) % 12 + 1);
             $y = date('Y', strtotime($line->date)) - ($m > date('m', strtotime($line->date)) ? 1 : 0);
-            $line->claimdate = date_shift("$y-$m-01", "+3 month -1 day");
+            $line->claimdate = date('Y-m-d', strtotime('+3 month -1 day', strtotime("$y-$m-01")));
         }
 
         if (!@$line->net && !@$line->gst && @$line->amount) {
