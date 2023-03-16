@@ -6,7 +6,7 @@ class gstsettlementgroup extends \jars\Linetype
 {
     public function __construct()
     {
-        $this->table = 'transaction';
+        $this->table = 'irdgst';
 
         $this->fields = [
             'date' => fn ($records) => $records['/']->date,

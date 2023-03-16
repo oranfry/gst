@@ -17,14 +17,28 @@ class gsttransaction extends \jars\Linetype
                 ||
                 $peer_record->amount < 0 && $peer_record->description == 'sale'
             ),
+            'gsttype' => function ($records): ?string {
+                if (!$peer_record = @$records['/gstpeer_gst']) {
+                    return null;
+                }
+
+                if ($override = @$peer_record->description) {
+                    return $override;
+                }
+
+                return $peer_record->amount > 0 ? 'sale' : 'purchase';
+            },
             'claimdate' => fn ($records) : ?string => @$records['/gstird_gst']->date,
             'net' => fn ($records) : float => (float) (@$records['/']->amount ?: '0.00'),
             'gst' => fn ($records) : ?float => @$records['/gstpeer_gst']->amount ? (float) $records['/gstpeer_gst']->amount : null,
             'amount' => fn ($records) : float => (float)((@$records['/']->amount ?? 0) + (@$records['/gstpeer_gst']->amount ?? 0)),
-            'is_peergst' => fn ($records) : bool => (bool) @$records['/gstpeer_transaction']->id,
             'broken' => function($records) : ?string {
                 if (in_array($records['/']->account, ['error', 'correction', 'gst'])) {
                     return 'Reserved Account';
+                }
+
+                if (isset($records['/gstpeer_gst']) && !isset($records['/gstird_gst'])) {
+                    throw new \Exception($records['/']->id);
                 }
 
                 if (isset($records['/gstpeer_gst']) && $records['/gstpeer_gst']->amount + $records['/gstird_gst']->amount != 0) {
@@ -48,20 +62,14 @@ class gsttransaction extends \jars\Linetype
 
         $this->inlinelinks = [
             (object) [
-                'linetype' => 'plaintransaction',
+                'linetype' => 'peergst',
                 'tablelink' => 'gstpeer',
                 'property' => 'gstpeer_gst',
             ],
             (object) [
-                'linetype' => 'plaintransaction',
+                'linetype' => 'irdgst',
                 'tablelink' => 'gstird',
                 'property' => 'gstird_gst',
-            ],
-            (object) [
-                'linetype' => 'plaintransaction',
-                'property' => 'gstpeer_transaction',
-                'tablelink' => 'gstpeer',
-                'reverse' => true,
             ],
         ];
     }
@@ -135,8 +143,6 @@ class gsttransaction extends \jars\Linetype
                 'description' => $description,
                 'user' => @$line->user,
             ];
-
-            $line->gstpeer_transaction = 'unchanged';
         }
     }
 }
