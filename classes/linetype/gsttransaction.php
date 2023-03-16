@@ -29,9 +29,9 @@ class gsttransaction extends \jars\Linetype
                 return $peer_record->amount > 0 ? 'sale' : 'purchase';
             },
             'claimdate' => fn ($records) : ?string => @$records['/gstird_gst']->date,
-            'net' => fn ($records) : float => (float) (@$records['/']->amount ?: '0.00'),
-            'gst' => fn ($records) : ?float => @$records['/gstpeer_gst']->amount ? (float) $records['/gstpeer_gst']->amount : null,
-            'amount' => fn ($records) : float => (float)((@$records['/']->amount ?? 0) + (@$records['/gstpeer_gst']->amount ?? 0)),
+            'net' => fn ($records) : string => bcadd('0', @$records['/']->amount ?: '0.00', 2),
+            'gst' => fn ($records) : ?string => @$records['/gstpeer_gst']->amount ? bcadd('0', $records['/gstpeer_gst']->amount, 2) : null,
+            'amount' => fn ($records) : string => bcadd($records['/']->amount ?? '0', $records['/gstpeer_gst']->amount ?? 0, 2),
             'broken' => function($records) : ?string {
                 if (in_array($records['/']->account, ['error', 'correction', 'gst'])) {
                     return 'Reserved Account';
@@ -57,7 +57,7 @@ class gsttransaction extends \jars\Linetype
             'date' => fn ($line) : string => $line->date,
             'account' => fn ($line) : string => $line->account,
             'description' => fn ($line) : ?string => @$line->description,
-            'amount' => fn ($line) : string => @$line->net ?? '0',
+            'amount' => fn ($line) : string => @$line->net ?? '0.00',
         ];
 
         $this->inlinelinks = [
