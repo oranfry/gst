@@ -10,7 +10,7 @@ class gstsettlementgroup extends \jars\Linetype
 
         $this->fields = [
             'date' => fn ($records) => $records['/']->date,
-            'account' => fn ($records) => "gst settlement",
+            'account' => fn ($records) => "irdgst",
             'amount' => fn ($records) => bcadd('0', $records['/']->amount, 2),
         ];
 
