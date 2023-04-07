@@ -100,7 +100,7 @@ class gsttransaction extends \jars\Linetype
             $errors[] = 'no date';
         }
 
-        if (!@$line->claimdate && $line->gst != 0) {
+        if (!@$line->claimdate && (float) @$line->gst) {
             $errors[] = 'no claim date';
         }
 
@@ -117,7 +117,7 @@ class gsttransaction extends \jars\Linetype
 
     public function unpack($line, $oldline, $old_gstird_transactions)
     {
-        if (@$line->gst != 0) {
+        if ((float) @$line->gst) {
             $description = '';
 
             if (@$line->invert) {
