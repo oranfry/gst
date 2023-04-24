@@ -8,57 +8,54 @@ class gsttransaction extends \jars\Linetype
     {
         $this->table = 'transaction';
 
-        $this->fields = [
-            'date' => fn ($records) : string => $records['/']->date,
-            'account' => fn ($records) : string => @$records['/']->account ?: 'unknown',
-            'description' => fn ($records) : ?string => @$records['/']->description,
-            'invert' => fn ($records) : bool => ($peer_record = @$records['/gstpeer_gst']) && (
-                $peer_record->amount > 0 && $peer_record->description == 'purchase'
-                ||
-                $peer_record->amount < 0 && $peer_record->description == 'sale'
-            ),
-            'gsttype' => function ($records): ?string {
-                if (!$peer_record = @$records['/gstpeer_gst']) {
-                    return null;
-                }
+        $this->simple_string('date');
+        $this->simple_string('account');
+        $this->simple_string('description');
 
-                if ($override = @$peer_record->description) {
-                    return $override;
-                }
+        $this->fields['invert'] = fn ($records) : bool => ($peer_record = @$records['/gstpeer_gst']) && (
+            $peer_record->amount > 0 && $peer_record->description == 'purchase'
+            ||
+            $peer_record->amount < 0 && $peer_record->description == 'sale'
+        );
 
-                return $peer_record->amount > 0 ? 'sale' : 'purchase';
-            },
-            'claimdate' => fn ($records) : ?string => @$records['/gstird_gst']->date,
-            'net' => fn ($records) : string => bcadd('0', @$records['/']->amount ?: '0.00', 2),
-            'gst' => fn ($records) : ?string => @$records['/gstpeer_gst']->amount ? bcadd('0', $records['/gstpeer_gst']->amount, 2) : null,
-            'amount' => fn ($records) : string => bcadd($records['/']->amount ?? '0', $records['/gstpeer_gst']->amount ?? 0, 2),
-            'broken' => function($records) : ?string {
-                if (in_array($records['/']->account, ['error', 'correction', 'gst'])) {
-                    return 'Reserved Account';
-                }
-
-                if (isset($records['/gstpeer_gst']) && !isset($records['/gstird_gst'])) {
-                    throw new \Exception($records['/']->id);
-                }
-
-                if (isset($records['/gstpeer_gst']) && $records['/gstpeer_gst']->amount + $records['/gstird_gst']->amount != 0) {
-                    return 'Unbalanced GST';
-                }
-
-                if (isset($records['/gstpeer_gst']) && $records['/gstpeer_gst']->amount != 0 && ($error = round(abs(round($records['/']->amount * 0.15, 2) - $records['/gstpeer_gst']->amount), 2)) > 0.01) {
-                    return 'GST wrong by ' . var_export($error, 1);
-                }
-
+        $this->fields['gsttype'] = function ($records): ?string {
+            if (!$peer_record = @$records['/gstpeer_gst']) {
                 return null;
-            },
-        ];
+            }
 
-        $this->unfuse_fields = [
-            'date' => fn ($line) : string => $line->date,
-            'account' => fn ($line) : string => $line->account,
-            'description' => fn ($line) : ?string => @$line->description,
-            'amount' => fn ($line) : string => @$line->net ?? '0.00',
-        ];
+            if ($override = @$peer_record->description) {
+                return $override;
+            }
+
+            return $peer_record->amount > 0 ? 'sale' : 'purchase';
+        };
+
+        $this->fields['claimdate'] = fn ($records) : ?string => @$records['/gstird_gst']->date;
+        $this->fields['net'] = fn ($records) : string => bcadd('0', @$records['/']->amount ?: '0.00', 2);
+        $this->fields['gst'] = fn ($records) : ?string => @$records['/gstpeer_gst']->amount ? bcadd('0', $records['/gstpeer_gst']->amount, 2) : null;
+        $this->fields['amount'] = fn ($records) : string => bcadd($records['/']->amount ?? '0', $records['/gstpeer_gst']->amount ?? 0, 2);
+
+        $this->fields['broken'] = function($records) : ?string {
+            if (in_array($records['/']->account, ['error', 'correction', 'gst'])) {
+                return 'Reserved Account';
+            }
+
+            if (isset($records['/gstpeer_gst']) && !isset($records['/gstird_gst'])) {
+                throw new \Exception($records['/']->id);
+            }
+
+            if (isset($records['/gstpeer_gst']) && $records['/gstpeer_gst']->amount + $records['/gstird_gst']->amount != 0) {
+                return 'Unbalanced GST';
+            }
+
+            if (isset($records['/gstpeer_gst']) && $records['/gstpeer_gst']->amount != 0 && ($error = round(abs(round($records['/']->amount * 0.15, 2) - $records['/gstpeer_gst']->amount), 2)) > 0.01) {
+                return 'GST wrong by ' . var_export($error, 1);
+            }
+
+            return null;
+        };
+
+        $this->unfuse_fields['amount'] = fn ($line) : string => @$line->net ?? '0.00';
 
         $this->inlinelinks = [
             (object) [

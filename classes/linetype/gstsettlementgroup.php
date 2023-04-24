@@ -8,19 +8,11 @@ class gstsettlementgroup extends \jars\Linetype
     {
         $this->table = 'irdgst';
 
-        $this->fields = [
-            'date' => fn ($records) => $records['/']->date,
-            'account' => fn ($records) => "irdgst",
-            'amount' => fn ($records) => bcadd('0', $records['/']->amount, 2),
-        ];
+        $this->simple_string('date');
+        $this->literal('account', 'irdgst');
 
-        $this->borrow = [
-            'txdate' => fn ($line) => $line->gstird_transaction->date,
-        ];
-
-        $this->unfuse_fields = [
-            'date' => fn ($line, $oldline) => $line->date,
-        ];
+        $this->fields['amount'] = fn ($records) => bcadd('0', $records['/']->amount, 2);
+        $this->borrow['txdate'] = fn ($line) => $line->gstird_transaction->date;
 
         $this->inlinelinks = [
             (object) [

@@ -8,10 +8,10 @@ class plaintransaction extends \jars\Linetype
     {
         $this->table = 'transaction';
 
-        $this->simple_strings('date', 'account', 'description');
-
-        $this->fields['amount'] = fn ($records) : string => bcadd('0', $records['/']->amount ?? '0', 2);
-        $this->unfuse_fields['amount'] = fn ($line) : string => bcadd('0', $line->amount ?? '0', 2);
+        $this->simple_string('date');
+        $this->simple_string('account');
+        $this->simple_string('description');
+        $this->simple_float('amount', 2);
     }
 
     public function validate($line)
