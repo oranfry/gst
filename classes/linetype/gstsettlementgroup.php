@@ -11,8 +11,8 @@ class gstsettlementgroup extends \jars\Linetype
         $this->simple_string('date');
         $this->literal('account', 'irdgst');
 
-        $this->fields['amount'] = fn ($records) => bcadd('0', $records['/']->amount, 2);
-        $this->borrow['txdate'] = fn ($line) => $line->gstird_transaction->date;
+        $this->fields['amount'] = fn ($records): float => (float) bcadd('0', $records['/']->amount, 2);
+        $this->borrow['txdate'] = fn ($line): string => $line->gstird_transaction->date;
 
         $this->inlinelinks = [
             (object) [

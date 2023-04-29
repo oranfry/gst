@@ -30,10 +30,10 @@ class gsttransaction extends \jars\Linetype
             return $peer_record->amount > 0 ? 'sale' : 'purchase';
         };
 
-        $this->fields['claimdate'] = fn ($records) : ?string => @$records['/gstird_gst']->date;
-        $this->fields['net'] = fn ($records) : string => bcadd('0', @$records['/']->amount ?: '0.00', 2);
-        $this->fields['gst'] = fn ($records) : ?string => @$records['/gstpeer_gst']->amount ? bcadd('0', $records['/gstpeer_gst']->amount, 2) : null;
-        $this->fields['amount'] = fn ($records) : string => bcadd($records['/']->amount ?? '0', $records['/gstpeer_gst']->amount ?? 0, 2);
+        $this->fields['claimdate'] = fn ($records): ?string => @$records['/gstird_gst']->date;
+        $this->fields['net'] = fn ($records): float => bcadd('0', (string) ($records['/']->amount ?? 0), 2);
+        $this->fields['gst'] = fn ($records): ?float => @$records['/gstpeer_gst']->amount ? (float) bcadd('0', $records['/gstpeer_gst']->amount, 2) : null;
+        $this->fields['amount'] = fn ($records): float => (float) bcadd((string) ($records['/']->amount ?? 0), (string) ($records['/gstpeer_gst']->amount ?? 0), 2);
 
         $this->fields['broken'] = function($records) : ?string {
             if (in_array($records['/']->account, ['error', 'correction', 'gst'])) {
@@ -55,7 +55,7 @@ class gsttransaction extends \jars\Linetype
             return null;
         };
 
-        $this->unfuse_fields['amount'] = fn ($line) : string => @$line->net ?? '0.00';
+        $this->unfuse_fields['amount'] = fn ($line): string => bcadd('0', (string) ($line->net ?? 0), 2);
 
         $this->inlinelinks = [
             (object) [
@@ -128,7 +128,7 @@ class gsttransaction extends \jars\Linetype
             $line->gstpeer_gst = (object) [
                 'date' => $line->date,
                 'account' => 'gst',
-                'amount' => $line->gst,
+                'amount' => bcadd('0', (string) ($line->gst ?? 0), 2),
                 'description' => $description,
                 'user' => @$line->user,
             ];
@@ -136,7 +136,7 @@ class gsttransaction extends \jars\Linetype
             $line->gstird_gst = (object) [
                 'date' => $line->claimdate,
                 'account' => 'gst',
-                'amount' => 0 - $line->gst,
+                'amount' => bcsub('0', (string) ($line->gst ?? 0), 2),
                 'description' => $description,
                 'user' => @$line->user,
             ];
