@@ -2,14 +2,18 @@
 
 namespace gst\linetype;
 
+use simplefields\traits\SimpleFields;
+
 class gstsettlementgroup extends \jars\Linetype
 {
+    use SimpleFields;
+
     public function __construct()
     {
         $this->table = 'irdgst';
 
-        $this->simple_string('date');
-        $this->literal('account', 'irdgst');
+        $this->simple_date('date');
+        $this->simple_literal('account', 'irdgst');
 
         $this->fields['amount'] = fn ($records): float => (float) bcadd('0', $records['/']->amount, 2);
         $this->borrow['txdate'] = fn ($line): string => $line->gstird_transaction->date;

@@ -1,9 +1,12 @@
 {
-    "name": "oranfry/gst",
-    "version": "1.0.0",
     "autoload": {
         "psr-4": {
             "gst\\": "classes"
         }
-    }
+    },
+    "name": "oranfry/gst",
+    "require": {
+        "oranfry/simple-fields": "*"
+    },
+    "version": "1.0.0"
 }
